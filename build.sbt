@@ -12,7 +12,19 @@ isSnapshot in ThisBuild := false
 
 javacOptions in ThisBuild ++= Seq("-source", "1.8", "-target", "1.8")
 
-sources in doc in Compile := List()
+publishArtifact in root := false
+lazy val root = project.in(file(".")).aggregate(addon)
+
+lazy val addon = project.settings(vaadinAddOnSettings :_*).settings(
+  name := "vaadin-aceeditor",
+  libraryDependencies := Dependencies.addonDeps,
+  // Javadoc generation causes problems so disabling it for now
+  mappings in packageVaadinDirectoryZip <<= (packageSrc in Compile) map {
+    (src) => Seq((src, src.name))
+  },
+  sources in doc in Compile := List()
+)
+
 
 sonatypeProfileName in ThisBuild := "com.github.ilgun"
 
@@ -54,18 +66,3 @@ pomExtra in ThisBuild := <url>https://github.com/ilgun/vaadin-aceeditor</url>
       <url>https://github.com/ilgun</url>
     </developer>
   </developers>
-
-val vaadinVersion = "8.1.1"
-libraryDependencies ++= Seq(
-  "com.vaadin" % "vaadin-server" % vaadinVersion,
-  "com.vaadin" % "vaadin-client" % vaadinVersion,
-
-  "com.vaadin" % "vaadin-compatibility-client" % vaadinVersion,
-  "com.vaadin" % "vaadin-compatibility-server" % vaadinVersion,
-  "com.vaadin" % "vaadin-compatibility-shared" % vaadinVersion,
-
-  "com.vaadin" % "vaadin-client-compiler" % vaadinVersion,
-  "com.vaadin" % "vaadin-compatibility-client-compiled" % vaadinVersion,
-
-  "com.vaadin" % "vaadin-compatibility-themes" % vaadinVersion
-)
